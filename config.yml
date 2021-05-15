@@ -1,0 +1,152 @@
+version: 2
+jobs:
+  build-and-test-server:
+    working_directory: ~/project/server
+    docker:
+      - image: circleci/rust
+    environment:
+    steps:
+      - checkout:
+          path: ~/project
+      - run:
+          name: Switch to nightly
+          command: rustup default nightly
+      - run:
+          name: Version information
+          command: rustc --version; cargo --version; rustup --version
+      # If you have committed your Cargo.lock file to version control
+      # delete this step.
+      - run:
+          name: Calculate dependencies
+          command: cargo generate-lockfile
+      - restore_cache:
+          keys:
+            - v1-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build all targets
+          command: cargo build
+      - save_cache:
+          paths:
+            - /usr/local/cargo/registry
+            - target/debug/.fingerprint
+            - target/debug/build
+            - target/debug/deps
+          key: v1-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Run all tests
+          command: cargo test
+      - run:
+          name: Install formatter
+          command: rustup component add rustfmt
+      - run:
+          name: Formatting
+          command: cargo fmt --all -- --check
+      - run:
+          name: Install Clippy
+          command: rustup component add clippy
+      - run:
+          name: Linting
+          command: cargo clippy
+
+  build-server-image:
+    working_directory: ~/project/server
+    docker:
+      - image: circleci/rust
+    environment:
+    steps:
+      - checkout:
+          path: ~/project
+      - setup_remote_docker
+      - run:
+          name: Switch to nightly
+          command: rustup default nightly
+      - run:
+          name: Version information
+          command: rustc --version; cargo --version; rustup --version
+      # If you have committed your Cargo.lock file to version control
+      # delete this step.
+      - run:
+          name: Calculate dependencies
+          command: cargo generate-lockfile
+      - restore_cache:
+          keys:
+            - v1-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build all targets
+          command: cargo build --release
+      - save_cache:
+          paths:
+            - /usr/local/cargo/registry
+            - target/release/.fingerprint
+            - target/release/build
+            - target/release/deps
+          key: v1-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Running deploy.sh
+          command: sh ./deploy.sh
+
+  build-client-image:
+    working_directory: ~/project/www
+    docker:
+      - image: circleci/node
+    steps:
+      - checkout:
+          path: ~/project
+      - setup_remote_docker
+      - run:
+          name: Installing
+          command: npm install
+      - run:
+          name: Linting
+          command: npm run lint
+      - run:
+          name: Formatting
+          command: npm run format
+      - run:
+          name: Building
+          command: npm run build
+      - run:
+          name: Running deploy.sh
+          command: sh ./deploy.sh
+
+  build-etl-image:
+    working_directory: ~/project/etl
+    docker:
+      - image: circleci/python
+    steps:
+      - checkout:
+          path: ~/project
+      - setup_remote_docker
+      - run:
+          name: Running deploy.sh
+          command: sh ./deploy.sh
+
+  deploy-compose:
+    docker:
+      - image: circleci/python
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Running deploy.sh
+          command: sh ./deploy.sh
+
+
+workflows:
+  version: 2
+  build-test:
+    jobs:
+      - build-etl-image
+      # - build-and-test-server:
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      - build-server-image
+          # requires:
+          #   - build-and-test-server
+      - build-client-image
+      - deploy-compose:
+          requires:
+            - build-server-image
+            - build-client-image
+            - build-etl-image
