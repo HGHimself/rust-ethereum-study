@@ -1,6 +1,7 @@
 # Rust Ethereum Study
 
-### What is a smart contract
-https://kauri.io/#collections/Ethereum%20101/ethereum-101-part-5-the-smart-contract/
-
-A smart contract holds functionality that interacts with the blockchain. 
+### To Run
+- `sudo npm install -g ganache-cli` to get the package that will run a private local blockchain
+- `ganache-cli -d` to start the private local blockchain
+- `rustup install nightly` to get your toolchain in order
+- `cargo run` to fire off a test
