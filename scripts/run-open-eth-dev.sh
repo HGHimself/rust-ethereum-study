@@ -1,0 +1,1 @@
+openethereum --config dev
