@@ -17,27 +17,27 @@ async fn main() -> web3::Result<()> {
     //     let balance = web3.eth().balance(account, None).await?;
     //     println!("Balance of {:?}: {}", account, balance);
     // }
-
-    let balance_before = web3.eth().balance(accounts[2], None).await?;
-
-    let tx = TransactionRequest {
-        from: accounts[0],
-        to: Some(accounts[2]),
-        gas: None,
-        gas_price: None,
-        value: Some(U256::from(10000)),
-        data: None,
-        nonce: None,
-        condition: None
-    };
-
-    let tx_hash = web3.eth().send_transaction(tx).await?;
-
-    let balance_after = web3.eth().balance(accounts[2], None).await?;
-
-    println!("TX Hash: {:?}", tx_hash);
-    println!("Balance before: {}", balance_before);
-    println!("Balance after: {}", balance_after);
+    //
+    // let balance_before = web3.eth().balance(accounts[2], None).await?;
+    //
+    // let tx = TransactionRequest {
+    //     from: accounts[0],
+    //     to: Some(accounts[2]),
+    //     gas: None,
+    //     gas_price: None,
+    //     value: Some(U256::from(10000)),
+    //     data: None,
+    //     nonce: None,
+    //     condition: None
+    // };
+    //
+    // let tx_hash = web3.eth().send_transaction(tx).await?;
+    //
+    // let balance_after = web3.eth().balance(accounts[2], None).await?;
+    //
+    // println!("TX Hash: {:?}", tx_hash);
+    // println!("Balance before: {}", balance_before);
+    // println!("Balance after: {}", balance_after);
 
     Ok(())
 }

@@ -44,3 +44,9 @@ In order to deploy a smart contract, we have to pay for gas with some denominati
 https://www.youtube.com/watch?v=cqZhNzZoMh8
 https://ethereum.org/en/developers/docs/standards/tokens/
 https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
+
+
+#### Credits
+Seeming as we need to make a name for the credits for the purpose of this study, we will pull inspiration from literature. **Air Dollars** comes from H.G. Well's *The Shape of Things to Come*. Our symbol will be **ADZ**, and the smallest denomination we support is to the hundredth decimal place.
+
+> The air-dollar was not a metallic coin at all; it was a series of paper notes, which represented distance, weight, bulk, and speed. Each note was good for so many kilograms in so much space, for so many kilometres at such a pace. The value of an air-dollar had settled down roughly to a cubic metre weighing ten kilograms and travelling two hundred kilometres at a hundred kilometres an hour
