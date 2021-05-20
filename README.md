@@ -50,3 +50,14 @@ https://ethereum.org/en/developers/docs/standards/tokens/erc-20/
 Seeming as we need to make a name for the credits for the purpose of this study, we will pull inspiration from literature. **Air Dollars** comes from H.G. Well's *The Shape of Things to Come*. Our symbol will be **ADZ**, and the smallest denomination we support is to the hundredth decimal place.
 
 > The air-dollar was not a metallic coin at all; it was a series of paper notes, which represented distance, weight, bulk, and speed. Each note was good for so many kilograms in so much space, for so many kilometres at such a pace. The value of an air-dollar had settled down roughly to a cubic metre weighing ten kilograms and travelling two hundred kilometres at a hundred kilometres an hour
+
+
+### Questions
+##### How do we link a user to their balance?
+- We can keep it within the blockchain by using a wallet account (wallets are hard and scary)
+- We can keep their info within shopify as a customer perhaps (responsibility on us, not extendable outside shopify)
+- We can generate a key for the user to hold onto (harder)
+
+##### How do we segment one shop from another?
+- We can have a mega smart contract holding all shops and all of their credits per user (quite a bit of programming and uses a lot of space)
+- We can spawn a new credit setup for each new shop (incurs slightly more cost)
