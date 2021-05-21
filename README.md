@@ -56,7 +56,7 @@ Seeming as we need to make a name for the credits for the purpose of this study,
 ##### How do we link a user to their balance?
 - We can keep it within the blockchain by using a wallet account (wallets are hard and scary)
 - We can keep their info within shopify as a customer perhaps (responsibility on us, not extendable outside shopify)
-- We can generate a key for the user to hold onto (harder)
+- We can generate a key for the user to hold onto (responsibility on user)
 
 ##### How do we segment one shop from another?
 - We can have a mega smart contract holding all shops and all of their credits per user (quite a bit of programming and uses a lot of space)
