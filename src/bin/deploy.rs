@@ -1,7 +1,10 @@
 use dotenv::dotenv;
 use rust_ethereum_study::models::contract;
-use rust_ethereum_study::utils::{read_file_to_string, read_file_to_bytes};
-use rust_ethereum_study::{generate_web3_transport, get_account, parse_address, contract_name_to_path, establish_connection};
+use rust_ethereum_study::utils::{read_file_to_bytes, read_file_to_string};
+use rust_ethereum_study::{
+    contract_name_to_path, establish_connection, generate_web3_transport, get_account,
+    parse_address,
+};
 use std::error::Error;
 use std::time;
 
@@ -18,11 +21,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let contract = contract::deploy(&web3, my_account.clone(), String::from(name)).await?;
 
     let contract_address = contract.address();
-    let new_contract = contract::NewContract::new(
-        name.to_string(),
-        my_account,
-        contract_address.to_string(),
-    );
+    let new_contract =
+        contract::NewContract::new(name.to_string(), my_account, contract_address.to_string());
 
     new_contract.insert(&conn);
 

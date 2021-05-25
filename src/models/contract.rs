@@ -62,6 +62,20 @@ pub fn read(conn: &PgConnection) -> Vec<Contract> {
         .expect("Error loading contract")
 }
 
+pub fn read_by_name(conn: &PgConnection, name: String) -> Vec<Contract> {
+    contract::table
+        .filter(contract::name.eq(name))
+        .load::<Contract>(conn)
+        .expect("Error loading contract")
+}
+
+pub fn read_by_address(conn: &PgConnection, address: String) -> Vec<Contract> {
+    contract::table
+        .filter(contract::address.eq(address))
+        .load::<Contract>(conn)
+        .expect("Error loading contract")
+}
+
 pub async fn fetch(
     web3: &Web3<Http>,
     address: String,
@@ -144,6 +158,57 @@ mod tests {
         assert!(0 < contract.len());
 
         let my_contract = contract.iter().find(|&x| x.name == new_contract.name);
+        assert!(
+            my_contract.is_some(),
+            "Could not find the created contract in the database!"
+        );
+
+        cleanup_table(&conn);
+    }
+
+    #[test]
+    fn it_reads_a_contract_by_name() {
+        let conn = establish_connection_test();
+        let name = String::from("NamedContract");
+
+        // make 2 contracts, each with different categories
+        let mut new_contract = mock_struct();
+        create(&conn, &new_contract);
+
+        new_contract.name = name.clone();
+        create(&conn, &new_contract);
+
+        let contract = read_by_name(&conn, name.clone());
+
+        assert_eq!(1, contract.len());
+
+        let my_contract = contract.iter().find(|x| x.name == name);
+        assert!(
+            my_contract.is_some(),
+            "Could not find the created contract in the database!"
+        );
+
+        cleanup_table(&conn);
+    }
+
+    #[test]
+    fn it_reads_a_contract_by_address() {
+        let conn = establish_connection_test();
+        let address =
+            String::from("0cd1136c6702de4410d06d3ae80f592c9b2132ea232011bcc78fb53862cbd9ee");
+
+        // make 2 contracts, each with different categories
+        let mut new_contract = mock_struct();
+        create(&conn, &new_contract);
+
+        new_contract.address = address.clone();
+        create(&conn, &new_contract);
+
+        let contract = read_by_address(&conn, address.clone());
+
+        assert_eq!(1, contract.len());
+
+        let my_contract = contract.iter().find(|x| x.address == address);
         assert!(
             my_contract.is_some(),
             "Could not find the created contract in the database!"
