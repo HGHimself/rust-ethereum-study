@@ -8,22 +8,23 @@ use std::time;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
+
     let conn = establish_connection();
     let web3 = generate_web3_transport()?;
 
     let my_account = get_account();
     let name = "SimpleStorage";
 
-    let contract = contract::deploy(&web3, my_account, String::from(name)).await?;
+    let contract = contract::deploy(&web3, my_account.clone(), String::from(name)).await?;
 
     let contract_address = contract.address();
     let new_contract = contract::NewContract::new(
-        name,
+        name.to_string(),
         my_account,
-        contract_address,
+        contract_address.to_string(),
     );
 
-    new_contract.insert(conn);
+    new_contract.insert(&conn);
 
     Ok(())
 }

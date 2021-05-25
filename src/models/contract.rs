@@ -1,12 +1,22 @@
 use crate::schema::contract;
-use crate::utils::now;
+use crate::utils::{now, read_file_to_bytes, read_file_to_string};
+use crate::{contract_name_to_path, parse_address};
+use chrono::naive::NaiveDateTime;
 use diesel::prelude::*;
+use std::error::Error;
+use std::time;
+use web3::{contract as contract_web3, transports::Http, types::Address, Web3};
 
 #[derive(Queryable, Debug)]
 pub struct Contract {
     pub id: i32,
     pub name: String,
     pub owner: String,
+    pub address: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+    pub active: bool,
 }
 
 #[derive(Insertable)]
@@ -14,11 +24,24 @@ pub struct Contract {
 pub struct NewContract {
     pub name: String,
     pub owner: String,
+    pub address: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: Option<NaiveDateTime>,
+    pub deleted_at: Option<NaiveDateTime>,
+    pub active: bool,
 }
 
 impl NewContract {
-    pub fn new(name: String, owner: String) -> Self {
-        NewContract { name, owner }
+    pub fn new(name: String, owner: String, address: String) -> Self {
+        NewContract {
+            name,
+            owner,
+            address,
+            created_at: now(),
+            updated_at: None,
+            deleted_at: None,
+            active: true,
+        }
     }
 
     pub fn insert(&self, conn: &PgConnection) -> Contract {
@@ -39,6 +62,40 @@ pub fn read(conn: &PgConnection) -> Vec<Contract> {
         .expect("Error loading contract")
 }
 
+pub async fn fetch(
+    web3: &Web3<Http>,
+    address: String,
+    name: String,
+) -> Result<contract_web3::Contract<Http>, Box<dyn Error>> {
+    let contract_address = parse_address(address);
+    let abi = read_file_to_bytes(&contract_name_to_path(format!("{}.abi", name)))?;
+
+    let contract = contract_web3::Contract::from_json(web3.eth(), contract_address, &abi)?;
+
+    Ok(contract)
+}
+
+pub async fn deploy(
+    web3: &Web3<Http>,
+    account: String,
+    name: String,
+) -> Result<contract_web3::Contract<Http>, Box<dyn Error>> {
+    let bytecode = read_file_to_string(&contract_name_to_path(format!("{}.bin", name)))?;
+    let abi = read_file_to_bytes(&contract_name_to_path(format!("{}.abi", name)))?;
+    let contract_owner = parse_address(account);
+
+    let contract = contract_web3::Contract::deploy(web3.eth(), &abi)?
+        .confirmations(0)
+        .poll_interval(time::Duration::from_secs(1))
+        .options(contract_web3::Options::with(|opt| {
+            opt.gas = Some(3_000_000.into())
+        }))
+        .sign_and_execute(bytecode, (), contract_owner, "")
+        .await?;
+
+    Ok(contract)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -51,6 +108,7 @@ mod tests {
     fn mock_struct() -> NewContract {
         NewContract::new(
             String::from("Token"),
+            String::from("00a329c0648769a73afac7f9381e08fb43dbea72"),
             String::from("00a329c0648769a73afac7f9381e08fb43dbea76"),
         )
     }

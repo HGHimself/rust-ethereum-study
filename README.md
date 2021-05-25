@@ -61,3 +61,16 @@ Seeming as we need to make a name for the credits for the purpose of this study,
 ##### How do we segment one shop from another?
 - We can have a mega smart contract holding all shops and all of their credits per user (quite a bit of programming and uses a lot of space)
 - We can spawn a new credit setup for each new shop (incurs slightly more cost)
+
+
+### Code Archive
+`// web3.personal().unlock_account(contract_owner, "", None).await?;`
+
+#### Links
+https://kauri.io/#communities/Getting%20started%20with%20dapp%20development/understanding-smart-contract-compilation-and-depl/
+
+https://kauri.io/#single/all-you-should-know-about-libraries-in-solidity/
+
+https://kauri.io/#single/storing-files-in-a-distributed-file-system-using-/
+
+https://kauri.io/#collections/A%20Hackathon%20Survival%20Guide/sending-ethereum-transactions-with-rust/
