@@ -1,23 +1,43 @@
 #[macro_use]
 extern crate diesel;
 extern crate dotenv;
+#[macro_use]
+extern crate juniper;
 
+pub mod context;
 pub mod models;
 pub mod schema;
 pub mod utils;
 
 use diesel::prelude::*;
 use dotenv::dotenv;
+use ethcontract::prelude::*;
+use juniper::FieldResult;
 use std::env;
 use std::error::Error;
 use web3;
 
-pub fn parse_address(address: String) -> web3::types::Address {
-    address.parse().unwrap()
+ethcontract::contract!(
+    pub "truffle/build/Gheedorah.json",
+);
+
+pub struct QueryRoot;
+
+#[graphql_object(context = "Context")]
+impl QueryRoot {
+    async fn balance_of(context: &Context, storeId: String, clientId: String) -> FieldResult<f64> {
+        let balance = context
+            .contract
+            .balance_of(storeId, clientId)
+            .call()
+            .await?;
+
+        Ok((balance.as_u64() as f64) / 100f64)
+    }
 }
 
-pub fn contract_name_to_path(name: String) -> String {
-    format!("src/res/{}", name)
+pub fn parse_address(address: String) -> web3::types::Address {
+    address.parse().unwrap()
 }
 
 pub fn get_account() -> String {

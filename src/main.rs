@@ -1,27 +1,63 @@
+#![feature(decl_macro, proc_macro_hygiene)]
+
 use dotenv::dotenv;
-use rust_ethereum_study::models::contract;
-use rust_ethereum_study::utils::{read_file_to_bytes, read_file_to_string};
+use juniper::{EmptyMutation, EmptySubscription, RootNode};
+use rocket::{response::content, State};
 use rust_ethereum_study::{
-    contract_name_to_path, establish_connection, generate_web3_transport, get_account,
-    parse_address,
+    context::Context, establish_connection, generate_web3_transport, get_account, parse_address,
+    Gheedorah, QueryRoot,
 };
 use std::error::Error;
-use std::time;
+use web3::api::Web3;
+
+type Schema = RootNode<'static, QueryRoot, EmptyMutation<Context>, EmptySubscription<Context>>;
+
+#[rocket::get("/")]
+fn graphiql() -> content::Html<String> {
+    juniper_rocket::graphiql_source("/graphql", None)
+}
+
+#[rocket::get("/graphql?<request>")]
+fn get_graphql_handler(
+    context: State<Context>,
+    request: juniper_rocket::GraphQLRequest,
+    schema: State<Schema>,
+) -> juniper_rocket::GraphQLResponse {
+    request.execute_sync(&schema, &context)
+}
+
+#[rocket::post("/graphql", data = "<request>")]
+fn post_graphql_handler(
+    context: State<Context>,
+    request: juniper_rocket::GraphQLRequest,
+    schema: State<Schema>,
+) -> juniper_rocket::GraphQLResponse {
+    request.execute_sync(&schema, &context)
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv().ok();
 
-    let conn = establish_connection();
     let web3 = generate_web3_transport()?;
+    let network_id = web3.net().version().await?;
+    let instance = Gheedorah::deployed(&web3).await?;
 
-    let my_account = get_account();
-    let name = "SimpleStorage";
+    let context = Context::new(instance);
+    let schema = Schema::new(
+        QueryRoot,
+        EmptyMutation::<Context>::new(),
+        EmptySubscription::<Context>::new(),
+    );
 
-    let contract = &contract::read_by_name(&conn, name.to_string())[0];
-    let web3_contract = contract::fetch(&web3, contract.address.clone(), name.to_string()).await?;
-
-    println!("{:?}", web3_contract.abi());
+    rocket::ignite()
+        .manage(context)
+        .manage(schema)
+        .mount(
+            "/",
+            rocket::routes![graphiql, get_graphql_handler, post_graphql_handler],
+        )
+        .launch();
 
     Ok(())
 }
