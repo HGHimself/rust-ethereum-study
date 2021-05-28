@@ -1,11 +1,11 @@
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity ^0.5.0;
 
 
 contract ERC20Basic {
 
-    string public constant name = "ERC20Basic";
-    string public constant symbol = "ERC";
-    uint8 public constant decimals = 18;
+    string constant name = "ERC20Basic";
+    string constant symbol = "ERC";
+    uint8 constant decimals = 18;
 
 
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
@@ -26,7 +26,7 @@ contract ERC20Basic {
     }
 
     function totalSupply() public view returns (uint256) {
-    return totalSupply_;
+        return totalSupply_;
     }
 
     function balanceOf(address tokenOwner) public view returns (uint256) {
