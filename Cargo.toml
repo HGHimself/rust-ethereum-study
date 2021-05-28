@@ -12,7 +12,7 @@ diesel = { version = "1.4.4", features = ["chrono", "postgres", "r2d2"] }
 dotenv = "0.15.0"
 ethcontract = "0.11.3"
 juniper = "0.15.5"
-juniper_rocket = "0.6.3"
-rocket = { version = "0.4.10", default-features = false }
+juniper_warp = "0.6.3"
 tokio = { version = "0.2.0" }
+warp = "0.2"
 web3 = "0.15.0"

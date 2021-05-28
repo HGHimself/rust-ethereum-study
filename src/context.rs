@@ -1,11 +1,12 @@
 use crate::Gheedorah;
 
+#[derive(Clone)]
 pub struct Context {
     pub contract: Gheedorah,
 }
 
 impl Context {
-    pub fn new(instance: Gheedorah) -> Self {
+    pub fn new(contract: Gheedorah) -> Self {
         Context { contract }
     }
 }
