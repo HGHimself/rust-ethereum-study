@@ -20,11 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let network_id = web3.net().version().await?;
     let instance = Gheedorah::deployed(&web3).await?;
 
-    let schema = Schema::new(
-        QueryRoot,
-        MutationRoot,
-        EmptySubscription::<Context>::new(),
-    );
+    let schema = Schema::new(QueryRoot, MutationRoot, EmptySubscription::<Context>::new());
     let context = Context::new(instance);
 
     let log = warp::log("warp_server");

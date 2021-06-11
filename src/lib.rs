@@ -5,8 +5,6 @@ extern crate dotenv;
 extern crate juniper;
 
 pub mod context;
-pub mod models;
-pub mod schema;
 pub mod utils;
 
 use context::Context;
@@ -41,10 +39,19 @@ pub struct MutationRoot;
 
 #[graphql_object(context = "Context")]
 impl MutationRoot {
-    async fn credit(context: &Context, storeId: String, clientId: String, credits: String) -> FieldResult<f64> {
+    async fn credit(
+        context: &Context,
+        storeId: String,
+        clientId: String,
+        credits: String,
+    ) -> FieldResult<f64> {
         let tx = context
             .contract
-            .credit(storeId.clone(), clientId.clone(), web3::types::U256::from_dec_str(&credits)?)
+            .credit(
+                storeId.clone(),
+                clientId.clone(),
+                web3::types::U256::from_dec_str(&credits)?,
+            )
             .send()
             .await?;
 
@@ -57,10 +64,19 @@ impl MutationRoot {
         Ok((balance.as_u64() as f64) / 100f64)
     }
 
-    async fn redeem(context: &Context, storeId: String, clientId: String, credits: String) -> FieldResult<f64> {
+    async fn redeem(
+        context: &Context,
+        storeId: String,
+        clientId: String,
+        credits: String,
+    ) -> FieldResult<f64> {
         let tx = context
             .contract
-            .redeem(storeId.clone(), clientId.clone(), web3::types::U256::from_dec_str(&credits)?)
+            .redeem(
+                storeId.clone(),
+                clientId.clone(),
+                web3::types::U256::from_dec_str(&credits)?,
+            )
             .send()
             .await?;
 
